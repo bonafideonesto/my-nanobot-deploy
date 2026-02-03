@@ -1,1 +1,1 @@
-worker: nanobot gateway
+worker: bash railway_start.sh
