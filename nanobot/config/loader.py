@@ -1,6 +1,7 @@
 """Configuration loading utilities."""
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,18 @@ def load_config(config_path: Path | None = None) -> Config:
     Returns:
         Loaded configuration object.
     """
+    # 1. ПЕРВЫЙ ПРИОРИТЕТ: ПЕРЕМЕННАЯ ОКРУЖЕНИЯ
+    config_json = os.environ.get("NANOBOT_CONFIG_JSON")
+    if config_json:
+        try:
+            data = json.loads(config_json)
+            print("🐈 Configuration loaded from NANOBOT_CONFIG_JSON environment variable")
+            return Config.model_validate(convert_keys(data))
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Warning: Failed to parse NANOBOT_CONFIG_JSON: {e}")
+            print("Falling back to config file.")
+    
+    # 2. ВТОРОЙ ПРИОРИТЕТ: ФАЙЛ КОНФИГУРАЦИИ
     path = config_path or get_config_path()
     
     if path.exists():
